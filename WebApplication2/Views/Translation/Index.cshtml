@@ -1,0 +1,32 @@
+﻿@{
+    ViewData["Title"] = "번역 시스템";
+}
+
+<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90vh;">
+    <h1 style="font-size: 2.5rem; margin-bottom: 40px; font-weight: bold;">
+        🌐 번역 시스템
+    </h1>
+
+    <a href="/login/google" 
+       style="
+            display: flex;
+            align-items: center;
+            background-color: white;
+            color: #555;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-size: 1.1rem;
+            text-decoration: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+       "
+       onmouseover="this.style.boxShadow='0 4px 10px rgba(0,0,0,0.2)'"
+       onmouseout="this.style.boxShadow='0 2px 4px rgba(0,0,0,0.1)'">
+
+        <img src="https://developers.google.com/identity/images/g-logo.png" 
+             alt="Google" 
+             style="width: 24px; height: 24px; margin-right: 12px;">
+        Google로 로그인
+    </a>
+</div>

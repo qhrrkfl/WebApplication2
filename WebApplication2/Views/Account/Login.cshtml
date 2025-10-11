@@ -1,0 +1,68 @@
+﻿@model LoginVm
+
+<style>
+  /* 에러 자리 고정 (플로팅 아래에 별도 슬롯) */
+  .field-error {
+    min-height: 18px;           /* 한 줄 높이 확보 */
+    margin-top: 6px;
+    font-size: 12px;
+    color: #dc3545;              /* Bootstrap danger */
+  }
+  .field-error:empty::before { content: "\00a0"; } /* 비어도 높이 유지 */
+</style>
+
+<div class="card shadow-sm mx-auto" style="max-width:420px;">
+  <div class="card-body p-4">
+    <h3 class="mb-4 text-center">로그인</h3>
+
+    <form method="post" asp-controller="Account" asp-action="Login" novalidate>
+      @Html.AntiForgeryToken()
+
+      <div asp-validation-summary="ModelOnly" class="field-error"></div>
+
+      <!-- 이메일: form-floating은 그대로 유지 -->
+      <div class="form-floating">
+        <input asp-for="Email" class="form-control" id="emailInput" placeholder="you@example.com" autocomplete="username" />
+        <label for="emailInput">이메일</label>
+      </div>
+      <!-- ✅ 플로팅 밖, 아래에 고정 높이 에러 슬롯 -->
+      <span class="field-error" asp-validation-for="Email"></span>
+
+      <!-- 비밀번호도 동일 패턴 -->
+      <div class="form-floating mt-2 position-relative">
+        <input asp-for="Password" class="form-control" id="pwdInput" placeholder="비밀번호" autocomplete="current-password" />
+        <label for="pwdInput">비밀번호</label>
+        <button type="button"
+                class="btn btn-sm btn-outline-secondary position-absolute top-50 end-0 translate-middle-y me-2"
+                onclick="togglePwd()">보기</button>
+      </div>
+      <span class="field-error" asp-validation-for="Password"></span>
+
+      <button type="submit" class="btn btn-primary w-100 mt-2">로그인</button>
+
+      
+    </form>
+
+    <div class="mt-2">
+  <a asp-controller="Account"
+     asp-action="Register"
+     class="btn btn-outline-secondary w-100">회원가입</a>
+</div>
+
+  </div>
+ 
+</div>
+
+
+
+
+
+@section Scripts {
+  <partial name="_ValidationScriptsPartial" />
+  <script>
+    function togglePwd(){
+      var el = document.getElementById('pwdInput');
+      el.type = (el.type === 'password') ? 'text' : 'password';
+    }
+  </script>
+}
