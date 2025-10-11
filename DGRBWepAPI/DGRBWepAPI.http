@@ -1,0 +1,6 @@
+@DGRBWepAPI_HostAddress = http://localhost:5137
+
+GET {{DGRBWepAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

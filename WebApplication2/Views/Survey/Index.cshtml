@@ -1,0 +1,142 @@
+﻿@model WebApplication2.Models.SurveyViewModel
+@{
+    ViewBag.Title = "설문 전달";
+    Layout = "~/Views/Shared/_Layout.cshtml"; // 필요 시 변경
+}
+
+<style>
+/* --- Quick modern UI --- */
+:root {
+    --bg: #0f172a;         /* slate-900 */
+    --card: #111827;       /* gray-900 */
+    --muted: #94a3b8;      /* slate-400 */
+    --accent: #60a5fa;     /* blue-400 */
+    --accent-2: #22d3ee;   /* cyan-400 */
+    --text: #e5e7eb;       /* gray-200 */
+    --danger: #fb7185;     /* rose-400 */
+}
+body { background: radial-gradient(1200px 600px at 10% 0%, #0b1024, var(--bg)); }
+.sv-container {
+    max-width: 780px; margin: 48px auto; padding: 0 16px;
+}
+.sv-header {
+    background: linear-gradient(135deg, rgba(96,165,250,.18), rgba(34,211,238,.12));
+    border: 1px solid rgba(148,163,184,.2);
+    border-radius: 18px; padding: 22px 24px; color: var(--text);
+    box-shadow: 0 10px 30px rgba(0,0,0,.35);
+    backdrop-filter: blur(6px);
+}
+.sv-header h1 {
+    margin: 0 0 6px; font-size: 26px; letter-spacing: .2px;
+}
+.sv-header p { margin: 0; color: var(--muted); }
+
+.sv-card {
+    margin-top: 18px; background: linear-gradient(180deg, rgba(17,24,39,.94), rgba(17,24,39,.88));
+    border: 1px solid rgba(148,163,184,.18);
+    border-radius: 18px; padding: 22px; color: var(--text);
+    box-shadow: 0 12px 30px rgba(0,0,0,.45);
+}
+.sv-field { margin-bottom: 18px; }
+.sv-label {
+    display: block; margin-bottom: 8px; font-weight: 600; color: #cbd5e1;
+}
+.sv-input, .sv-textarea {
+    width: 100%; background: #0b1220; color: var(--text);
+    border: 1px solid rgba(148,163,184,.25); border-radius: 12px;
+    padding: 12px 14px; outline: none; transition: border .2s, box-shadow .2s;
+}
+.sv-textarea { min-height: 92px; resize: vertical; }
+.sv-input:focus, .sv-textarea:focus {
+    border-color: rgba(96,165,250,.6);
+    box-shadow: 0 0 0 4px rgba(96,165,250,.15);
+}
+.sv-hint { margin-top: 6px; font-size: 12px; color: var(--muted); }
+.field-validation-error { color: var(--danger); font-size: 12px; margin-top: 6px; display:block; }
+
+.sv-actions {
+    display: flex; gap: 10px; justify-content: flex-end; margin-top: 6px;
+}
+.sv-btn {
+    border: 1px solid rgba(148,163,184,.25);
+    background: linear-gradient(135deg, rgba(96,165,250,.22), rgba(34,211,238,.18));
+    color: var(--text);
+    padding: 11px 16px; border-radius: 12px; font-weight: 600; letter-spacing: .2px;
+    cursor: pointer; transition: transform .05s ease, box-shadow .2s;
+    box-shadow: 0 6px 18px rgba(0,0,0,.35);
+}
+.sv-btn:hover { box-shadow: 0 12px 28px rgba(0,0,0,.45); }
+.sv-btn:active { transform: translateY(1px); }
+.sv-btn.secondary { background: transparent; }
+.sv-footer {
+    margin-top: 14px; font-size: 12px; color: var(--muted); text-align: right;
+}
+.sv-badge {
+    display:inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px;
+    color:#0b1220; background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    font-weight:700; letter-spacing:.3px;
+}
+.sv-ok {
+    margin-top: 14px; padding: 12px 14px; border-radius: 12px;
+    background: rgba(34,197,94,.12); border:1px solid rgba(34,197,94,.35);
+    color:#d1fae5;
+}
+@@media (max-width: 520px) {
+    .sv-header h1 { font-size: 22px; }
+}
+</style>
+
+<div class="sv-container">
+    <div class="sv-header">
+        <h1>설문 전달 <span class="sv-badge">3문항</span></h1>
+        <p>간단히 작성 후 “전송하기”를 눌러 주세요.</p>
+    </div>
+
+    @if (TempData["Ok"] != null)
+    {
+        <div class="sv-ok">@TempData["Ok"]</div>
+    }
+
+    <div class="sv-card">
+        @using (Html.BeginForm("Index", "Survey", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="sv-field">
+                <label class="sv-label" for="Item1">항목 1</label>
+                @Html.TextAreaFor(m => m.Item1, new { @class = "sv-textarea", placeholder = "예: 이번 주 주요 이슈 또는 전달 사항" })
+                @Html.ValidationMessageFor(m => m.Item1)
+                <div class="sv-hint">최대 500자</div>
+            </div>
+
+            <div class="sv-field">
+                <label class="sv-label" for="Item2">항목 2</label>
+                @Html.TextAreaFor(m => m.Item2, new { @class = "sv-textarea", placeholder = "예: 필요한 지원이나 요청" })
+                @Html.ValidationMessageFor(m => m.Item2)
+                <div class="sv-hint">최대 500자</div>
+            </div>
+
+            <div class="sv-field">
+                <label class="sv-label" for="Item3">항목 3</label>
+                @Html.TextAreaFor(m => m.Item3, new { @class = "sv-textarea", placeholder = "예: 기타 코멘트" })
+                @Html.ValidationMessageFor(m => m.Item3)
+                <div class="sv-hint">최대 500자</div>
+            </div>
+
+            <div class="sv-actions">
+                <button type="reset" class="sv-btn secondary">초기화</button>
+                <button type="submit" class="sv-btn">전송하기</button>
+            </div>
+
+            <div class="sv-footer">
+                입력 데이터는 전송 시점에만 처리됩니다.
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+}
