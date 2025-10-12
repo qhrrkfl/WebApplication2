@@ -16,11 +16,17 @@ namespace WebApplication2.Service
     {
         private readonly TranslateDbContext _db;
         private readonly string key;
+        private readonly string password;
+        private readonly string passkey;
+        private readonly string id;
         private readonly ILogger<MailValService> _logger;
         public MailValService(TranslateDbContext db, IConfiguration con, ILogger<MailValService> l)
         {
             _db = db;
             key = con["HashKey"]!;
+            id = con["ID"]!;
+            passkey = con["mykey"]!;
+            password = con["crypt"]!;
             _logger = l;
 
         }
@@ -102,30 +108,25 @@ namespace WebApplication2.Service
         private async Task SendEMailAsync(string code, string targetEmail)
         {
             using SmtpClient smtp = new SmtpClient();
-            using MailMessage message = new MailMessage();  // from address를 따로 넣으려면 어떻게 해야 하나?
+            using MailMessage message = new MailMessage(); 
 
-            string? pass = string.Empty;
-            System.Environment.SetEnvironmentVariable("password", pass);
-            string? key = string.Empty;
-            System.Environment.SetEnvironmentVariable("mykey", key);
-            string id = string.Empty;
-            System.Environment.SetEnvironmentVariable("ID", key);
-            string plainPass = Unprotect(pass, Convert.FromBase64String(key));
+            string plainPass = Unprotect(password, Convert.FromBase64String(passkey));
 
             // Naver 계정 SMTP 설정 > 
             smtp.Host = "smtp.naver.com";  //"smtp.gmail.com";
             smtp.UseDefaultCredentials = false;
             smtp.Port = 587;
             smtp.EnableSsl = true;
+            
             smtp.Timeout = 20000;
             smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
-            smtp.Credentials = new NetworkCredential(id, plainPass);
+            smtp.Credentials = new NetworkCredential(id , plainPass);
 
             //message = new MailMessage();
 
 
 
-            message.From = new MailAddress("qhrrkfl2@naver.com", "validation", System.Text.Encoding.UTF8);
+            message.From = new MailAddress(id, "qhrrkfl2", System.Text.Encoding.UTF8);
 
             message.To.Add(new MailAddress(targetEmail));
 

@@ -13,7 +13,7 @@ namespace KeyGen
         {
             // 암호화 키 젠
             var keyb64 = CreateKey();
-            byte[] bkey = Convert.FromBase64String(keyb64);
+            byte[] bkey = Convert.FromBase64String("");
             Console.WriteLine(keyb64);
             Console.WriteLine("===");
             
