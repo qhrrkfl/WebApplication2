@@ -25,6 +25,7 @@ namespace WebApplication2
 
             
             builder.Services.AddScoped<AccountService>();       // Scoped
+            builder.Services.AddScoped<MailValService>();       // Scoped
             builder.Services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
 
 

@@ -16,12 +16,13 @@ namespace WebApplication2.Controllers
         private readonly ILogger<AccountController> _logger;
         private readonly TranslateDbContext _dbContext;
         private readonly AccountService _accountService;
-
-        public AccountController(ILogger<AccountController> logger, TranslateDbContext _dbconnection , AccountService AC)
+        private readonly MailValService _mailValService;
+        public AccountController(ILogger<AccountController> logger, TranslateDbContext _dbconnection , AccountService AC , MailValService mailValService)
         {
             _logger = logger;
             _dbContext = _dbconnection;
             _accountService = AC;
+            _mailValService = mailValService;
         }
 
 
@@ -29,7 +30,10 @@ namespace WebApplication2.Controllers
         [HttpGet]
         [AllowAnonymous]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Login() => View(new LoginVm());
+        public IActionResult Login() 
+        { 
+           return View(new LoginVm()); 
+        }
 
         // 로그인 처리 (POST) ← 폼이 전송되는 곳
         [HttpPost]
@@ -51,8 +55,6 @@ namespace WebApplication2.Controllers
             return RedirectToAction("Welcome", "Home");
         }
 
-
-
         [HttpGet]
         [AllowAnonymous]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
@@ -60,7 +62,6 @@ namespace WebApplication2.Controllers
         {
             return View(new RegisterVm());
         }
-
 
         // 회원가입 폼 → 사용자 초기 등록 후 인증 메일 요청 페이지로 안내
         [HttpPost]
@@ -72,12 +73,16 @@ namespace WebApplication2.Controllers
             switch (command)
             {
                 case "CheckEmail":
+                    return View(vm);
                     break;
 
                 case "CheckNickName":
+                    return View(vm);
                     break;
 
                 case "CodeSend":
+                    await _mailValService.sendEmail(vm.Email, ct);
+                    return View(vm);
                     break;
                 default:
                     break;
