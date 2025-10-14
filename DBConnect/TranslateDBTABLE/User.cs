@@ -15,7 +15,8 @@ namespace DBconnect.Models
 
         [MaxLength(100)]
         public string? NickName { get; set; }
-        [MaxLength(20)]
+        [Required]
+        [Column(TypeName = "nvarchar(max)")]
         public string? HashPassword { get; set; }
 
         [MaxLength(50)]

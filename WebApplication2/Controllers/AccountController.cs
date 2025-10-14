@@ -3,13 +3,14 @@ using DBconnection;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using System.Threading.Tasks;
 using WebApplication2.Models;
 using WebApplication2.Service;
 
 namespace WebApplication2.Controllers
 {
-
+    [AllowAnonymous]
     public class AccountController : Controller
     {
 
@@ -67,35 +68,56 @@ namespace WebApplication2.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [AllowAnonymous]
-        public async Task<IActionResult> Register(string command , RegisterVm vm , CancellationToken ct)
+        public async Task<IActionResult> Register(RegisterVm vm , CancellationToken ct)
         {
 
-            switch (command)
+            var ret = await _accountService.RegisterID(vm.Email, vm.rawPassword, vm.Nickname, ct);
+            if (ret == false)
             {
-                case "CheckEmail":
-                    return View(vm);
-                    break;
 
-                case "CheckNickName":
-                    return View(vm);
-                    break;
-
-                case "CodeSend":
-                    await _mailValService.sendEmail(vm.Email, ct);
-                    return View(vm);
-                    break;
-                default:
-                    break;
+                ModelState.AddModelError(string.Empty, "회원가입에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+                return View(vm);
             }
 
-
-
-            return View(vm); 
-            
+            return RedirectToAction("Index", "Translation");
         }
 
         [HttpGet]
         public IActionResult Denied() { return View(); }
+
+        [AcceptVerbs( "POST")]
+        [ValidateAntiForgeryToken]
+        [AllowAnonymous]
+        public async Task<IActionResult> CheckEmail(string Email, CancellationToken ct)
+        {
+            var ret  = await _dbContext.Users.Where(x => x.Email.ToLower().Equals(Email)).AsNoTracking().FirstOrDefaultAsync(ct);
+            bool exist = false;
+            if(ret != null)
+            {
+                exist = true;
+            }
+            // Remote는 true면 유효, 문자열이면 에러메시지
+            return Json(exist ? "이미 사용 중인 이메일입니다." : true);
+        }
+
+        [AcceptVerbs( "POST")]
+        [ValidateAntiForgeryToken]
+        [AllowAnonymous]
+        public async Task<IActionResult> CheckNickName(string Nickname, CancellationToken ct)
+        {
+            var ret = await _dbContext.Users.Where(x => x.NickName.ToLower().Equals(Nickname)).AsNoTracking().FirstOrDefaultAsync( ct);
+            bool exist = false;
+            if (ret != null)
+            {
+                exist = true;
+            }
+            // Remote는 true면 유효, 문자열이면 에러메시지
+            return Json(exist ? "이미 사용 중인 닉네임 입니다." : true);
+        }
+
+        
+
+
 
 
 

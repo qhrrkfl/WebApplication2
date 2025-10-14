@@ -15,27 +15,24 @@
   <div class="card-body p-4">
     <h3 class="mb-4 text-center">회원가입</h3>
 
-    <form method="post" asp-controller="Account" asp-action="Register" novalidate >
+    <form id="registerForm" method="post" asp-controller="Account" asp-action="Register" novalidate >
       @Html.AntiForgeryToken()
 
       <div asp-validation-summary="ModelOnly" class="field-error"></div>
 
       <!-- 이메일: form-floating은 그대로 유지 -->
       <div class="form-floating">
-        <input asp-for="Email"  class="form-control" id="emailInput" placeholder="you@example.com" autocomplete="username" />
+        <input asp-for="Email" type="email"  class="form-control" id="emailInput" placeholder="you@example.com" autocomplete="username" />
         <label for="emailInput">이메일</label>
-        <button type="submit" name="command" value="CheckEmail"
-                class="btn btn-sm btn-outline-secondary position-absolute top-50 end-0 translate-middle-y me-2"
-                >중복확인</button>
       </div>
       <!-- ✅ 플로팅 밖, 아래에 고정 높이 에러 슬롯 -->
       <span class="field-error" asp-validation-for="Email"></span>
 
       <!-- 비밀번호도 동일 패턴 -->
       <div class="form-floating mt-2 position-relative">
-        <input asp-for="rawPassword" class="form-control" id="pwdInputRegi" placeholder="비밀번호" autocomplete="current-password" />
+        <input asp-for="rawPassword" class="form-control" id="pwdInput" placeholder="비밀번호" autocomplete="new-password" />
         <label for="pwdInput">비밀번호</label>
-        <button type="submit"
+        <button type="button"
                 class="btn btn-sm btn-outline-secondary position-absolute top-50 end-0 translate-middle-y me-2"
                 onclick="togglePwd()">보기</button>
       </div>
@@ -43,26 +40,10 @@
 
       <div class="form-floating mt-2 position-relative">
         <input asp-for="Nickname" class="form-control" id="NickNameInput" placeholder="닉네임"  />
-        <label for="emailInput">닉네임</label>
-        <button type="submit" name="command" value="CheckNickName"
-                class="btn btn-sm btn-outline-secondary position-absolute top-50 end-0 translate-middle-y me-2">중복확인</button>
+        <label for="NickNameInput">닉네임</label>
       </div>
       
       <span class="field-error" asp-validation-for="Nickname"></span>
-
-
-        <div class="form-floating mt-2 position-relative">
-        <input asp-for="Code" class="form-control" id="CodeInput" placeholder="코드"  />
-        <label for="emailInput">인증코드</label>
-        <button type="submit" name="command" value="CodeSend"
-                class="btn btn-sm btn-outline-secondary position-absolute top-50 end-0 translate-middle-y me-2" formnovalidate>코드전송</button>
-      </div>
-      
-      <span class="field-error" asp-validation-for="Nickname"></span>
-
-        <input type="hidden" asp-for="EmailCheck" />
-        <input type="hidden" asp-for="nicknameCheck" />
-        <input type="hidden" asp-for="CodeCheck" />    
 
       <button type="submit" class="btn btn-primary w-100 mt-2">회원가입</button>
     </form>
@@ -74,21 +55,11 @@
   <script>
 
     function togglePwd(){
-      var el = document.getElementById('pwdInputRegi');
+      var el = document.getElementById('pwdInput');
       el.type = (el.type === 'password') ? 'text' : 'password';
     }
 
-    function disableClientValidation() {
-      const f = $('#regForm');
-      f.removeData('validator').removeData('unobtrusiveValidation');
-      // parse 안함 = 검증 안 붙임 ⇒ 이번 submit 통과
-    }
-    function enableClientValidation() {
-      const f = $('#regForm');
-      // 다시 붙이기
-      $.validator.unobtrusive.parse(f);
-    }
-
+    
 
   </script>
 }
