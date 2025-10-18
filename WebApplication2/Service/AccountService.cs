@@ -6,10 +6,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace WebApplication2.Service
 {
+    public enum loginType
+    {
+        Success,
+        Failed,
+        Validation
+    }
     public class AccountService
     {
         private readonly TranslateDbContext _db;
         private readonly IPasswordHasher<User> _hasher;
+
+        
 
         public AccountService(TranslateDbContext db, IPasswordHasher<User> hasher)
         {
@@ -17,7 +25,7 @@ namespace WebApplication2.Service
             _hasher = hasher;
         }
 
-        public async Task<bool> ValidateLogin(string email, string rawPass , CancellationToken ct)
+        public async Task<User> ValidateLogin(string email, string rawPass ,  CancellationToken ct )
         {
             var user = await _db.Users.FirstOrDefaultAsync(x => x.Email.ToLower().Equals(email.ToLower()),ct);
             if (user != null)
@@ -25,11 +33,10 @@ namespace WebApplication2.Service
                 var ret = _hasher.VerifyHashedPassword(user, user.HashPassword, rawPass);
                 if (ret == PasswordVerificationResult.Success || ret == PasswordVerificationResult.SuccessRehashNeeded)
                 {
-
-                    return true;
+                    return user;
                 }
             }
-            return false;
+            return null;
         }
 
         public async Task<bool> RegisterID(string email, string rawPass, string nickName , CancellationToken ct)

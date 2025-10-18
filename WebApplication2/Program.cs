@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WebApplication2.Service;
 
+using Microsoft.Extensions.Configuration;
 
 namespace WebApplication2
 {
@@ -14,6 +15,9 @@ namespace WebApplication2
     {
         public static void Main(string[] args)
         {
+
+           
+
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
@@ -56,7 +60,7 @@ namespace WebApplication2
                 options.LoginPath = "/Account/Login";          // ✅ 인증 안 됐을 때 보낼 URL
                 options.AccessDeniedPath = "/Account/Denied";  // ✅ 권한 부족일 때
                 options.SlidingExpiration = true;
-                options.ExpireTimeSpan = TimeSpan.FromDays(7);
+                options.ExpireTimeSpan = TimeSpan.FromHours(1);
             });
 
             // ✅ 기본(폴백) 권한 정책 = 인증된 사용자만
@@ -70,6 +74,10 @@ namespace WebApplication2
 
             var app = builder.Build();
 
+            var debug = ((IConfigurationRoot)app.Services.GetRequiredService<IConfiguration>()).GetDebugView();
+            app.Logger.LogInformation("CONFIG DEBUG:\n{cfg}", debug);
+
+
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {
@@ -81,15 +89,44 @@ namespace WebApplication2
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
+
+
+
             //======================================================== // 이건 순서 중요 미들웨어
             app.UseRouting();
             app.UseAuthentication();   // ✅ 순서 중요: 인증 먼저
+
+            // validation 안한놈을 redirect시켜버리는 미들웨어
+            app.Use(async (ctx, next) =>
+            {
+                var endpoint = ctx.GetEndpoint();
+                var allowsAnon = endpoint?.Metadata
+                    .GetMetadata<Microsoft.AspNetCore.Authorization.IAllowAnonymous>() != null;
+
+                var isAuthed = ctx.User?.Identity?.IsAuthenticated == true;
+                var isValidated = ctx.User?.FindFirst("validated")?.Value == "true";
+
+                // 이미 Validation 페이지면 루프 방지
+                var onValidation = ctx.Request.Path.StartsWithSegments("/Account/Validation");
+
+                if (isAuthed && !isValidated && !allowsAnon && !onValidation)
+                {
+                    ctx.Response.Redirect("/Account/Validation");
+                    return;
+                }
+
+                await next();
+            });
+
+
             app.UseAuthorization();
             //=======================================================
 
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
+
+          
 
             app.Run();
         }

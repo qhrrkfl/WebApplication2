@@ -24,7 +24,7 @@ namespace WebApplication2.Service
         {
             _db = db;
             key = con["HashKey"]!;
-            id = con["ID"]!;
+            id = con["MyEmail"]!;
             passkey = con["mykey"]!;
             password = con["crypt"]!;
             _logger = l;
@@ -42,7 +42,7 @@ namespace WebApplication2.Service
                 {
                     return "잠시후에 시도해 주세요";
                 }
-                else if (span.TotalDays > 60)
+                else if (span.TotalSeconds > 60)
                 {
                     await SendMailHelper(email, ct);
                     return "발송";
@@ -126,7 +126,7 @@ namespace WebApplication2.Service
 
 
 
-            message.From = new MailAddress(id, "qhrrkfl2", System.Text.Encoding.UTF8);
+            message.From = new MailAddress(id, "validation center", System.Text.Encoding.UTF8);
 
             message.To.Add(new MailAddress(targetEmail));
 

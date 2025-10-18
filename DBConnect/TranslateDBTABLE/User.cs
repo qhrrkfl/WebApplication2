@@ -31,5 +31,7 @@ namespace DBconnect.Models
 
         // 마지막 로그인 시각
         public DateTime? LastLogin { get; set; } = DateTime.Now;
+
+        public bool IsValidated { get; set; }
     }
 }
