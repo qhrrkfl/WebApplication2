@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using NuGet.Protocol;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using WebApplication2.Models;
@@ -189,33 +190,52 @@ namespace WebApplication2.Controllers
 
         }
 
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        public async Task<IActionResult> ValidateCode(string code,CancellationToken ct)
+        {
+            string email = User.FindFirstValue(ClaimTypes.Name);
+            bool ret = await _mailValService.ValidateCode(code, email, ct);
+
+            if (ret)
+            {
+                var claims = User.Claims.ToList();
+                var idx = claims.FindIndex(c => c.Type == "validated");
+                if (idx >= 0) claims.RemoveAt(idx);
+                claims.Add(new Claim("validated", "true"));
+
+                var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                var principal = new ClaimsPrincipal(identity);
+
+                // 쿠키 재발급
+                await HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    principal,
+                    new AuthenticationProperties { IsPersistent = true, ExpiresUtc = DateTime.UtcNow.AddHours(4) });
+
+                // 이제 권한에 따라 사용 가능 (예: 환영 페이지)
+
+                return RedirectToAction("Index", "Translation");
+            }
+            else
+            {
+                // viewmodel이 ㅇ벗어요.
+                TempData["CodeError"] = "인증 코드가 올바르지 않습니다.";
+                TempData["LastCode"] = code; // 선택: 사용자가 입력한 값을 복원하고 싶으면
+                return RedirectToAction(nameof(Validation));
+            }
+        }
+
 
 
 
 
         #region
-        // 검증 완료시 claim을 수정하고 쿠키를 재발급 해야한다.
-        //        // 이메일 코드 확인 성공 후:
-        //        var claims = User.Claims.ToList();
-        //        var idx = claims.FindIndex(c => c.Type == "validated");
-        //if (idx >= 0) claims.RemoveAt(idx);
-        //claims.Add(new Claim("validated", "true"));
-        //
-        //var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-        //        var principal = new ClaimsPrincipal(identity);
-        //
-        //        // 쿠키 재발급
-        //        await HttpContext.SignInAsync(
-        //            CookieAuthenticationDefaults.AuthenticationScheme,
-        //            principal,
-        //    new AuthenticationProperties { IsPersistent = true, ExpiresUtc = DateTime.UtcNow.AddHours(4) });
-        //
-        //// 이제 권한에 따라 사용 가능 (예: 환영 페이지)
-        //return RedirectToAction("Welcome", "Home");
+     
         #endregion
 
 
 
 
-    }
+}
 }

@@ -1,4 +1,7 @@
-﻿
+﻿@{
+    var err = TempData["CodeError"] as string;
+    var last = TempData["LastCode"] as string;
+}
 
 
 <style>
@@ -23,18 +26,18 @@
             <button id="sendBtn" class="btn btn-primary" type="button">인증코드 전송</button>
         </div>
 
-            <form id="form-val" method="post" asp-controller="Account" asp-action="Login" novalidate>
+            <form id="form-val" method="post" asp-controller="Account" asp-action="ValidateCode" novalidate>
                  @Html.AntiForgeryToken()
 
-                 <div asp-validation-summary="ModelOnly" class="field-error"></div>
-                  <div class="form-floating">
-                    <input  class="form-control" id="emailInput" placeholder="you@example.com" autocomplete="username" />
-                    <label for="emailInput">이메일</label>
-                  </div>
-                    <!-- ✅ 플로팅 밖, 아래에 고정 높이 에러 슬롯 -->
-                  <span class="field-error" ></span>
+                  @if (!string.IsNullOrWhiteSpace(err))
+                  {
+                    <div class="field-error">@err</div>  <!-- 에러가 있을 때만 생김 -->
+                  }
 
-             
+                  <div class="form-floating">
+                     <input name="code" class="form-control" id="ValidationCode" value="@(last ?? "")" />
+                    <label for="ValidationCode">인증코드 입력</label>
+                  </div>
 
                       <button type="submit" class="btn btn-primary w-100 mt-2">코드인증</button>
     

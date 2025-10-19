@@ -2,6 +2,7 @@
 using DBconnection;
 using Humanizer;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel;
 using System.Configuration;
 using System.Net;
 using System.Net.Mail;
@@ -89,6 +90,37 @@ namespace WebApplication2.Service
                 await tx.RollbackAsync();
             }
         }
+
+        public async Task<bool> ValidateCode(string code , string email , CancellationToken ct)
+        {
+
+           EmailValidations data = await _db.EmailValidations.Where(x => x.Email.ToLower().Equals(email.ToLower())).OrderByDescending(x=> x.CreatedAt).AsNoTracking().FirstOrDefaultAsync(ct);
+            if( data != null)
+            {
+                using (var h = new System.Security.Cryptography.HMACSHA256(Convert.FromBase64String(key)))
+                {
+                    byte[] hashcode;
+                    hashcode  = h.ComputeHash(System.Text.Encoding.UTF8.GetBytes(code));
+                    bool ret = Enumerable.SequenceEqual(data.ValCode, hashcode);
+                    if (ret == true)
+                    {
+                        int cnt = await _db.Users.Where(x => x.Email.ToLower().Equals(email.ToLower())).ExecuteUpdateAsync(setter => setter.SetProperty(b => b.IsValidated, true));
+                        if(cnt > 0)
+                        {
+                            cnt = await _db.SaveChangesAsync(ct);
+                        }
+                    }
+                    return ret;
+
+                }
+
+            }
+            else
+            {
+                return false;
+            }
+        } 
+
         #region helper method
 
 
