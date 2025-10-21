@@ -87,7 +87,7 @@ namespace WebApplication2.Controllers
 
                 if (user.IsValidated)
                 {
-                    return RedirectToAction("Welcome", "Home");
+                    return RedirectToAction("Index", "Translation");
                 }
                 else
                 {

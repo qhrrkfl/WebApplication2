@@ -1,32 +1,32 @@
 ﻿@{
     ViewData["Title"] = "번역 시스템";
+    Layout = "~/Views/Shared/_Layout2.cshtml";          // ~/Views/Shared/_AuthLayout.cshtml
 }
 
-<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90vh;">
-    <h1 style="font-size: 2.5rem; margin-bottom: 40px; font-weight: bold;">
-        🌐 번역 시스템
-    </h1>
+@section Table{
+    <link href="https://unpkg.com/tabulator-tables@6.3.1/dist/css/tabulator.min.css" rel="stylesheet">
+    <script type="text/javascript" src="https://unpkg.com/tabulator-tables@6.3.1/dist/js/tabulator.min.js"></script>
+}
 
-    <a href="/login/google" 
-       style="
-            display: flex;
-            align-items: center;
-            background-color: white;
-            color: #555;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            padding: 10px 20px;
-            font-size: 1.1rem;
-            text-decoration: none;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            transition: all 0.2s ease;
-       "
-       onmouseover="this.style.boxShadow='0 4px 10px rgba(0,0,0,0.2)'"
-       onmouseout="this.style.boxShadow='0 2px 4px rgba(0,0,0,0.1)'">
+<div id="example-table"></div>
 
-        <img src="https://developers.google.com/identity/images/g-logo.png" 
-             alt="Google" 
-             style="width: 24px; height: 24px; margin-right: 12px;">
-        Google로 로그인
-    </a>
-</div>
+@section Scripts {
+  <partial name="_ValidationScriptsPartial" />
+  <script>
+    var table = new Tabulator("#example-table", {
+        height:"1000px",
+        layout:"fitColumns",
+        columns:[
+        {title:"Name", field:"name", width:200},
+        {title:"Progress", field:"progress", hozAlign:"right", sorter:"number"},
+        {title:"Gender", field:"gender", widthGrow:2},
+        {title:"Rating", field:"rating", hozAlign:"center"},
+        {title:"Favourite Color", field:"col", widthGrow:3},
+        {title:"Date Of Birth", field:"dob", hozAlign:"center", sorter:"date", widthGrow:2},
+        {title:"Driver", field:"car", hozAlign:"center"},
+        ],
+    });
+    
+
+  </script>
+}
